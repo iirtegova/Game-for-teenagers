@@ -376,7 +376,9 @@ select option{background:var(--surf2)}
       </div>
     </div>
 
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:14px">Быстрые события (нажми, чтобы вставить):</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:14px">
+      <span id="qevs-year-label">Год 1 — события</span> <span style="color:var(--muted2)">(нажми → вставится в поле)</span>
+    </div>
     <div class="qevs" id="qevs-ops"></div>
     <div id="bond-alert" style="display:none">
       <div class="info-box red" id="bond-alert-msg">
@@ -465,7 +467,17 @@ select option{background:var(--surf2)}
       <div class="metric"><div class="mlabel">Ключевая ставка ЦБ</div><div class="mval cy" id="t-cbr">—</div></div>
     </div>
 
-    <!-- DUAL CHART -->
+    <!-- Если облигации не выпущены до IPO — предложение разместить здесь -->
+    <div id="bond-at-ipo-notice" style="display:none;margin-bottom:14px">
+      <div class="info-box amb">
+        <strong>📄 Облигации ещё не выпущены!</strong><br>
+        Сейчас самый удачный момент: номинал = цена акции на IPO — честное сравнение двух инструментов.<br>
+        Купон = ставка ЦБ (<span id="bond-ipo-cbr">—</span>) + 3%.
+      </div>
+      <button class="btn btn-a btn-full" onclick="issueAtIpo()" ontouchend="event.preventDefault();issueAtIpo()">
+        📄 Разместить облигации по номиналу = цена IPO →
+      </button>
+    </div>
     <div class="card" style="padding-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:10px;color:var(--muted)">Динамика цен (год 3)</div>
@@ -566,11 +578,14 @@ select option{background:var(--surf2)}
             <div>
               <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:8px">АКТИВЫ</div>
               <div class="row indent"><span style="font-size:11px">ДС</span><span class="tag tb" id="f-bs-cash">—</span></div>
+              <div class="row indent"><span style="font-size:11px">Деб. задолж. (AR)</span><span class="tag tb" id="f-bs-ar">—</span></div>
+              <div class="row indent"><span style="font-size:11px">Запасы</span><span class="tag tb" id="f-bs-inv">—</span></div>
               <div class="row indent"><span style="font-size:11px">ОС (net)</span><span class="tag tb" id="f-bs-fa">—</span></div>
               <div class="row" style="border:none;font-size:11px"><strong>Итого</strong><span id="f-bs-ta">—</span></div>
             </div>
             <div>
               <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:8px">ПАССИВЫ</div>
+              <div class="row indent"><span style="font-size:11px">Кред. задолж. (AP)</span><span class="tag tb" id="f-bs-ap">—</span></div>
               <div class="row indent"><span style="font-size:11px">Уставный кап.</span><span class="tag tb" id="f-bs-uc">—</span></div>
               <div class="row indent"><span style="font-size:11px">Нераспр. приб.</span><span id="f-bs-re">—</span></div>
               <div class="row indent"><span style="font-size:11px">Облигации (долг)</span><span class="tag tc" id="f-bs-debt">—</span></div>
@@ -709,25 +724,25 @@ const BIZ_EVENTS = {
     // 1. Цена золота выросла — война/кризис (бета к золоту 1,5×)
     {k:['2200','до $2200','$2200','золото 2200'],
       type:'goldPrice', newPrice:2200, cv:0, s:'pos',
-      c:'Цена золота $2 200/унц. Выручка = объём × новая цена × курс. Маржа шахты 78%.'},
+      c:'dynamic'},
     {k:['2500','до $2500','$2500','золото 2500'],
       type:'goldPrice', newPrice:2500, cv:0, s:'pos',
-      c:'Золото $2 500. Бета Полюса к золоту ≈1,5×: акция растёт быстрее цены металла.'},
+      c:'dynamic'},
     {k:['3000','до $3000','$3000','золото 3000'],
       type:'goldPrice', newPrice:3000, cv:0, s:'pos',
-      c:'Золото $3 000 — каждые +$500 к цене это +$325 млн выручки в квартал (650 тыс.унц).'},
+      c:'dynamic'},
     {k:['4000','до $4000','$4000','4500','$4500','золото растёт','золото ралли'],
       type:'goldPrice', newPrice:4000, cv:0, s:'pos',
-      c:'Исторический рекорд цены золота. Шахта в рекордной прибыли — EBITDA 78%.'},
+      c:'dynamic'},
     {k:['5000','до $5000','$5000','5600','$5600'],
       type:'goldPrice', newPrice:5000, cv:0, s:'pos',
-      c:'Цена золота $5 000/унц. В январе 2026 ATH был $5 600 — на фоне конфликта на Ближнем Востоке.'},
+      c:'dynamic'},
     {k:['1800','до $1800','$1800','золото упало','золото 1800'],
       type:'goldPrice', newPrice:1800, cv:0, s:'neg',
-      c:'Золото $1 800 — падение с $4 700. Выручка рухнула, расходы прежние. Маржа сжимается с 78% до 40%.'},
+      c:'dynamic'},
     {k:['1500','до $1500','$1500','золото рухнуло','обвал золота'],
       type:'goldPrice', newPrice:1500, cv:0, s:'neg',
-      c:'Золото $1 500 — критически низко. Полюс всё ещё прибылен (TCC $550), но маржа упала вдвое.'},
+      c:'dynamic'},
     // 2. Курс рубля
     {k:['рубль ослаб','доллар вырос','курс 100','до 100','доллар 100','89','до 89'],
       type:'usdRub', newRate:89, cv:2, s:'pos',
@@ -1084,7 +1099,7 @@ function initState() {
     cumAmortPaid:0,    // погашение тела (bullet: единовременно в период 10)
 
     // ── Вспомогательные ───────────────────────────────────────────
-    revStart:0,        // стартовая выручка (порог IPO: ×3)
+    revStart:0,        // стартовая выручка (порог IPO: ×2 — достижимо за 1-2 года)
     _netProfit:0,      // чистая прибыль последнего квартала (для initBond/initTrade)
     _pendingBond:null, // параметры облигации до размещения
     _revH:[], _costH:[], _ebitH:[],
@@ -1257,9 +1272,19 @@ function updateStatements() {
   // Купон по облигациям: каждые 2 квартала = один полугодовой период
   if(G.bondsIssued && G.quarter % 2 === 0 && G.bondPeriodsPaid < 10) {
     G.bondPeriodsPaid++;
-    // Обновляем рыночную цену DCF
     G.bondPrice = bondMarketPrice(G.cbr);
     G.bondPriceH.push(G.bondPrice);
+
+    // Период 10 — ПОГАШЕНИЕ (bullet bond): возвращаем тело долга держателям
+    if(G.bondPeriodsPaid === 10) {
+      const repay = G.bondDebt;
+      G.cash         -= repay;   // кэш уходит кредиторам
+      G.re           -= 0;       // P&L не затрагивается (возврат тела ≠ расход)
+      G.cumAmortPaid += repay;   // фиксируем в ОДДС как FCF-отток
+      G.bondDebt      = 0;       // обязательство погашено
+      // Рыночная цена = номинал (погашение по par)
+      G.bondPrice     = G.bondNominal;
+    }
   }
 
   // ── Шаг 6: Годовые накопители ─────────────────────────────────────────────
@@ -1445,35 +1470,92 @@ function startGame(){
 // OPERATIONS
 // ═══════════════════════════════════════
 // Пулы событий — при использовании кнопка гаснет, показывается следующая
+// ─── СОБЫТИЯ ПО ГОДАМ ──────────────────────────────────────────────────────
+// Год 1: знакомство с бизнесом | Год 2: рост и конкуренция | Год 3+: стратегия
+
+const BIZ_QEV_BY_YEAR = {
+  merch: {
+    1: [
+      'Новогодний бум — первые корпоративные заказы!',
+      'Рубль ослаб — ткани из Китая подорожали на 15%',
+      'Хлопок на мировом рынке +30% — выросла себестоимость',
+      'Открываем первые 5 магазинов в торговых центрах',
+      'Запуск продаж на Wildberries — тестируем онлайн',
+      'Back-to-school сезон: школьная форма и рюкзаки',
+      'Зима оказалась тёплой — зимняя коллекция не идёт',
+      'Открываем склад — логистика дешевле на 20%',
+      'Первая рекламная кампания: 500 тыс. охват',
+      'Поставщик поднял цены на готовые изделия +8%',
+    ],
+    2: [
+      'Тренд «назад в офис» — деловой стиль снова в моде',
+      'Крупный конкурент закрыл магазины — берём клиентов',
+      'Запуск собственной линейки: маржа выросла на 5%',
+      'ЦБ поднял ставку — покупатели переходят на вклады',
+      'Расширение до 25 магазинов: аренда дорожает',
+      'Блогер-миллионник снял вирусный обзор коллекции',
+      'Сбой поставок из Китая — склад опустел на 2 мес.',
+      'Запуск на Ozon + Lamoda — многоканальная стратегия',
+      'Средний чек поднят на 12% — покупатели приняли',
+      'Летний спад: запускаем распродажу −30%',
+    ],
+    3: [
+      'Инфляция 8%: рост цен опережает рост затрат',
+      'Wildberries требует скидку 15% — торгуемся',
+      'Открываем флагман 1000 кв.м в центре Москвы',
+      'Запуск детской линейки — новый сегмент',
+      'Конкурент скопировал хит-коллекцию — теряем долю',
+      'Подписка «капсульный гардероб» — рекуррентная выручка',
+      'Рецессия — покупатели сокращают траты на одежду',
+      'Партнёрство с сетью кофеен — корпоративная форма',
+      'Выход в регионы: открытие в 10 новых городах',
+      'Цены на синтетику упали на 20% — экономия на COGS',
+    ],
+  },
+  mine: {
+    1: [
+      'Золото выросло до $3000 — первый геополитический кризис',
+      'Золото упало до $1800 — доллар укрепился',
+      'Рубль ослаб — доллар вырос до 89₽',
+      'Авария в шахте: прорыв водоносного горизонта',
+      'Электроэнергия подорожала — ГЭС-тариф +20%',
+      'Геологи подтвердили: запасов на 20 лет работы',
+      'Набор команды горняков: ФОТ вырос на 15%',
+      'Первые продажи золота: отладка цепочки сбыта',
+      'Реагенты флотации подорожали на 25%',
+      'Зимний простой: оборудование на техобслуживании',
+    ],
+    2: [
+      'Золото выросло до $5000 — конфликт на Ближнем Востоке',
+      'Новая технология флотации: извлечение +8%',
+      'Геологи нашли новое месторождение (+50 тыс.унц/кв)',
+      'Рубль укрепился — доллар упал до 75₽',
+      'Правительство повысило НДПИ на 15%',
+      'Забастовка горняков — шахта стоит месяц',
+      'Новое буровое оборудование: производительность +12%',
+      'Золото упало до $1500 — фиксация прибыли',
+      'Рекордная добыча: +15% к квартальному плану',
+      'Санкции на экспорт — продаём с дисконтом 20%',
+    ],
+    3: [
+      'Золото ATH $5600 — глобальный кризис ликвидности',
+      'Проект Сухой Лог: объявлено начало освоения',
+      'Цифровизация шахты — затраты на добычу −10%',
+      'ESG-скандал: экологическое загрязнение реки',
+      'Рубль ослаб до 100₽/$ — рублёвая выручка рекорд',
+      'ЦБ снизил ставку до 10% — дешёвые кредиты',
+      'Конкурент обанкротился — покупаем активы',
+      'Техническая коррекция: золото −12% за неделю',
+      'Государство повысило роялти за недра на 8%',
+      'Прорыв в переработке: новый концентрат +5% золота',
+    ],
+  },
+};
+
+// Flat pool — для обратной совместимости
 const BIZ_QEV_POOL = {
-  merch: [
-    'Новогодний бум — корпоративные заказы на костюмы',
-    'Рубль ослаб — импорт из Китая подорожал',
-    'Хлопок подорожал на 30% на мировом рынке',
-    'Открываем 15 новых магазинов в ТЦ',
-    'ЦБ поднял ставку — покупатели идут в банк',
-    'Запуск на Wildberries — бум онлайн-заказов',
-    'Тренд «назад в офис» — костюмы снова нужны',
-    'Крупный конкурент ушёл с рынка',
-    'Сбой поставок из Китая на 2 месяца',
-    'Покупатели уходят в масс-маркет из-за инфляции',
-    'Блогер-миллионник снял обзор нашей одежды',
-    'Тёплая зима — зимняя коллекция не продаётся',
-  ],
-  mine: [
-    'Золото выросло до $5000 — война на Ближнем Востоке',
-    'Золото выросло до $3000',
-    'Золото упало до $1800 — паника прошла',
-    'Рубль ослаб — доллар вырос до 89₽',
-    'Рубль укрепился — доллар упал до 75₽',
-    'Геологи нашли новое месторождение',
-    'Авария: затопление шахты — остановка добычи',
-    'Забастовка горняков — шахта стоит месяц',
-    'Правительство повысило НДПИ на 15%',
-    'Новая технология: извлечение золота +8%',
-    'Санкции на экспорт — продаём с дисконтом 20%',
-    'Электроэнергия подорожала на 20%',
-  ],
+  merch: [...BIZ_QEV_BY_YEAR.merch[1], ...BIZ_QEV_BY_YEAR.merch[2]],
+  mine:  [...BIZ_QEV_BY_YEAR.mine[1],  ...BIZ_QEV_BY_YEAR.mine[2]],
 };
 
 const TRADE_QEV_POOL = [
@@ -1501,12 +1583,24 @@ if(!window._usedQevTrade) window._usedQevTrade = new Set();
 
 function renderQevs(id) {
   const isOps = id === 'qevs-ops';
-  const pool = isOps ? (BIZ_QEV_POOL[G.biz] || BIZ_QEV_POOL.merch) : TRADE_QEV_POOL;
-  const used = isOps ? (window._usedQevOps[G.biz] || new Set()) : window._usedQevTrade;
+  let pool;
+  if(isOps) {
+    // Выбираем пул по текущему году игры (1, 2, 3+)
+    const yearKey = Math.min(G.year, 3);
+    const yearPools = BIZ_QEV_BY_YEAR[G.biz] || BIZ_QEV_BY_YEAR.merch;
+    pool = yearPools[yearKey] || yearPools[1];
+  } else {
+    pool = TRADE_QEV_POOL;
+  }
+  // Ключ использованных событий включает год чтобы пул обновлялся при смене года
+  const usedKey = isOps ? G.biz + '_y' + G.year : 'trade';
+  if(!window._usedQevOps) window._usedQevOps = {};
+  const used = isOps
+    ? (window._usedQevOps[usedKey] || new Set())
+    : window._usedQevTrade;
 
   const el = document.getElementById(id);
   el.innerHTML = '';
-  // Показываем до 6 неиспользованных событий
   let shown = 0;
   pool.forEach((e, i) => {
     if(shown >= 10) return;
@@ -1518,8 +1612,8 @@ function renderQevs(id) {
       const inp = document.getElementById(isOps ? 'ev-inp' : 'st-inp');
       inp.value = e;
       if(isOps) {
-        if(!window._usedQevOps[G.biz]) window._usedQevOps[G.biz] = new Set();
-        window._usedQevOps[G.biz].add(i);
+        if(!window._usedQevOps[usedKey]) window._usedQevOps[usedKey] = new Set();
+        window._usedQevOps[usedKey].add(i);
       } else {
         window._usedQevTrade.add(i);
       }
@@ -1529,6 +1623,9 @@ function renderQevs(id) {
     el.appendChild(d);
     shown++;
   });
+  // Показываем метку года
+  const label = document.getElementById('qevs-year-label');
+  if(label && isOps) label.textContent = 'Год ' + G.year + (G.year >= 3 ? '+' : '') + ' — события';
 }
 
 function initOps(){
@@ -1536,6 +1633,7 @@ function initOps(){
   G._revH=[]; G._costH=[]; G._ebitH=[];
   // Сбросить годовые накопители
   G.annRev=0;G.annCost=0;G.annDep=0;G.annInt=0;G.annNet=0;
+  G.annCouponQ=0;G.annOCF=0;G.annICF=0;G.annCpnPaid=0;G.annDivPaid=0;
   G.annOCF=0;G.annICF=0;G.annCpnPaid=0;G.annDivPaid=0;
   G.divVotes=[0,0,0]; G.divTotalV=0; G.divChosen=-1; G.annualMeetingDone=false;
 
@@ -1685,7 +1783,7 @@ function applyDividend(w) {
 
   const btnAfter = document.getElementById('btn-after-div');
   if(btnAfter){
-    const ipoReady = G.rev >= G.revStart * 3;
+    const ipoReady = G.rev >= G.revStart * 2;
     btnAfter.textContent = ipoReady ? 'Выходим на IPO! 🚀' : 'Год '+(G.year+1)+' →';
     btnAfter.onclick = afterDividend;
   }
@@ -1693,7 +1791,7 @@ function applyDividend(w) {
 
 
 function afterDividend() {
-  const ipoReady = G.rev >= G.revStart * 3;
+  const ipoReady = G.rev >= G.revStart * 2;
   if(ipoReady) {
     goPhase(4); // IPO
   } else {
@@ -1706,13 +1804,14 @@ function nextYear(){
   G.quarter=1; G.evCnt=0;
   // Сбросить годовые накопители
   G.annRev=0;G.annCost=0;G.annDep=0;G.annInt=0;G.annNet=0;
+  G.annCouponQ=0;G.annOCF=0;G.annICF=0;G.annCpnPaid=0;G.annDivPaid=0;
   G.annOCF=0;G.annICF=0;G.annCpnPaid=0;G.annDivPaid=0;
   G.divVotes=[0,0,0]; G.divTotalV=0; G.divChosen=-1; G.annualMeetingDone=false;
 
   const bn = BIZ[G.biz].label;
   document.getElementById('s2-h').textContent='Год '+G.year+' — '+bn;
   const x = (G.rev/G.revStart).toFixed(1);
-  document.getElementById('s2-sub').textContent='Год '+G.year+'. Выручка ×'+x+' от старта (нужно ×3 для IPO).';
+  document.getElementById('s2-sub').textContent='Год '+G.year+'. Выручка ×'+x+' от старта (нужно ×2 для IPO).';
   document.getElementById('annual-meeting').style.display='none';
   document.getElementById('annual-pl-block').style.display='none';
   document.getElementById('ops-nav').style.display='none';
@@ -1720,7 +1819,8 @@ function nextYear(){
   document.getElementById('ev-log').innerHTML='';
   document.getElementById('ev-input-box').style.display='block';
   G._revH=[G.rev]; G._costH=[G.cost]; G._ebitH=[calcEBIT()];
-  window._usedQevOps[G.biz] = new Set();
+  // Новый год = новые события (ключ включает год → пул обновляется автоматически)
+  // Нет нужды сбрасывать старый ключ — renderQevs сам берёт нужный год
   renderQevs('qevs-ops');
   renderQuarterDots();
 }
@@ -1831,7 +1931,46 @@ function initTrade(){
   }
 
   document.getElementById('btn-agm').style.display = 'none';
-  if(G.bondsIssued) updateBondTracker(null);
+
+  // Если облигации не выпущены — показываем предложение выпустить прямо сейчас
+  const bondNotice = document.getElementById('bond-at-ipo-notice');
+  const bondIpoCbr = document.getElementById('bond-ipo-cbr');
+  if(bondIpoCbr) bondIpoCbr.textContent = fp(G.cbr);
+  if(bondNotice) {
+    bondNotice.style.display = G.bondsIssued ? 'none' : 'block';
+  }
+  if(G.bondsIssued) {
+    updateBondTracker(null);
+    if(bondNotice) bondNotice.style.display = 'none';
+  }
+}
+
+// Выпустить облигации прямо на экране IPO (без перехода на S3)
+function issueAtIpo() {
+  initBondScreen();               // рассчитывает параметры
+  issueBonds_inline();            // размещает без goPhase(4)
+}
+function issueBonds_inline() {
+  const b = G._pendingBond;
+  if(!b) return;
+  G.bondsIssued      = true;
+  G.bondNominal      = G.spIpo;   // синхронизируем с ценой IPO напрямую
+  G.bondQty          = G.n;
+  G.bondCouponRate   = b.couponRate;
+  G.bondCouponPerPeriod = Math.round(G.spIpo * b.couponRate / 2);
+  G.bondDebt         = G.spIpo * G.n;
+  G.bondPeriodsPaid  = 0;
+  G.bondPrice        = G.spIpo;
+  G.bondPriceH       = [G.spIpo];
+  G.cash            += G.bondDebt;
+  G.cumBondIn        = G.bondDebt;
+  // Обновляем экран
+  const bondNotice = document.getElementById('bond-at-ipo-notice');
+  if(bondNotice) bondNotice.style.display = 'none';
+  updateBondTracker(null);
+  // Перерисовываем dual chart с облигацией
+  renderDualChart();
+  alert('✅ Облигации размещены! Номинал = ' + Math.round(G.spIpo/1e6) + ' млн ₽ (= цена IPO). Теперь вы и акционеры, и кредиторы.');
 }
 
 
@@ -1988,10 +2127,17 @@ function sendEv(mode){
         G.cost = Math.max(5000, G.cost * (1 + cv/100));
 
         const revDelta = Math.round((G.rev - prevRev)/prevRev*100);
-        li.className = 'ei ' + (rule.s==='pos'?'pos':'neg');
+        const direction = rule.newPrice > oldPrice ? 'выросло' : 'упало';
+        const priceDiff = Math.abs(rule.newPrice - oldPrice);
+        // Динамическое описание от текущей цены
+        const dynDesc = `Золото ${direction} с $${oldPrice.toLocaleString('ru')} до $${rule.newPrice.toLocaleString('ru')} (${direction==='выросло'?'+':'−'}$${priceDiff.toLocaleString('ru')}). `
+          + `При объёме ${G.mine_goldVolumeTons} тыс.унц/кв и курсе ${G.mine_usdRub} ₽/$ `
+          + `выручка: ${direction==='выросло'?'↑':'↓'} ${Math.abs(revDelta)}%.`;
+
+        li.className = 'ei ' + (revDelta>=0?'pos':'neg');
         li.innerHTML = '<strong>«'+txt+'»</strong><br>'
-          + rule.c
-          + '<br><span style="font-size:11px;color:var(--muted)">Цена: $'+oldPrice+' → $'+rule.newPrice
+          + dynDesc
+          + '<br><span style="font-size:11px;color:var(--muted)">$'+oldPrice+' → $'+rule.newPrice
           + ' · Объём: '+mineVolLabel(G.mine_goldVolumeTons)+' · Курс: '+G.mine_usdRub+' ₽/$</span>'
           + ' <span class="tag '+(revDelta>=0?'tp':'tr')+'" style="margin-left:4px">Выр. '+pct(revDelta)+'</span>';
 
@@ -2003,11 +2149,15 @@ function sendEv(mode){
         G.cost = Math.max(5000, G.cost * (1 + cv/100));
 
         const revDelta = Math.round((G.rev - prevRev)/prevRev*100);
-        li.className = 'ei ' + (rule.s==='pos'?'pos':'neg');
+        const rateDir = rule.newRate > oldRate ? 'ослаб (доллар дороже)' : 'укрепился (доллар дешевле)';
+        const dynDesc = `Рубль ${rateDir}: ${oldRate} → ${rule.newRate} ₽/$. `
+          + `Продаём золото за $, платим затраты в ₽ — курс ${rule.newRate > oldRate ? 'помогает' : 'давит'} на выручку.`;
+
+        li.className = 'ei ' + (revDelta>=0?'pos':'neg');
         li.innerHTML = '<strong>«'+txt+'»</strong><br>'
-          + rule.c
+          + dynDesc
           + '<br><span style="font-size:11px;color:var(--muted)">Курс: '+oldRate+' → '+rule.newRate+' ₽/$'
-          + ' · Цена золота: $'+G.mine_goldPriceUSD+' · Объём: '+mineVolLabel(G.mine_goldVolumeTons)+'</span>'
+          + ' · Золото: $'+G.mine_goldPriceUSD+' · Объём: '+mineVolLabel(G.mine_goldVolumeTons)+'</span>'
           + ' <span class="tag '+(revDelta>=0?'tp':'tr')+'" style="margin-left:4px">Выр. '+pct(revDelta)+'</span>';
 
       } else if(rule.type === 'volume') {
@@ -2018,11 +2168,18 @@ function sendEv(mode){
         G.cost = Math.max(5000, G.cost * (1 + cv/100));
 
         const revDelta = Math.round((G.rev - prevRev)/prevRev*100);
-        li.className = 'ei ' + (rule.s==='pos'?'pos':'neg');
+        const volDiff  = G.mine_goldVolumeTons - oldVol;
+        const volDir   = volDiff >= 0 ? '+' : '';
+        // Динамическое описание: показываем реальное изменение от текущих параметров
+        const newRevRub = Math.round(G.mine_goldVolumeTons * 1000 * G.mine_goldPriceUSD * G.mine_usdRub);
+        const dynVolDesc = `Объём добычи: ${oldVol} → ${G.mine_goldVolumeTons} тыс.унц/кв (${volDir}${volDiff}). `
+          + `При текущей цене $${G.mine_goldPriceUSD} и курсе ${G.mine_usdRub} ₽/$ — выручка ${revDelta>=0?'↑':'↓'} ${Math.abs(revDelta)}%.`;
+
+        li.className = 'ei ' + (revDelta>=0?'pos':'neg');
         li.innerHTML = '<strong>«'+txt+'»</strong><br>'
-          + rule.c
-          + '<br><span style="font-size:11px;color:var(--muted)">Добыча: '+mineVolLabel(oldVol)+' → '+mineVolLabel(G.mine_goldVolumeTons)
-          + ' · Цена: $'+G.mine_goldPriceUSD+' · Курс: '+G.mine_usdRub+' ₽/$</span>'
+          + dynVolDesc
+          + '<br><span style="font-size:11px;color:var(--muted)">'+mineVolLabel(oldVol)+' → '+mineVolLabel(G.mine_goldVolumeTons)
+          + ' · $'+G.mine_goldPriceUSD+'/унц · '+G.mine_usdRub+' ₽/$</span>'
           + ' <span class="tag '+(revDelta>=0?'tp':'tr')+'" style="margin-left:4px">Выр. '+pct(revDelta)+'</span>';
       }
 
@@ -2061,6 +2218,12 @@ function sendEv(mode){
 
       // Объяснение влияния на акции (почему именно такая реакция)
       let stockExplain = '';
+      // Для cost-only событий шахты — показываем текущий уровень расходов
+      if(G.biz === 'mine' && rv === 0 && cv !== 0) {
+        const costImpact = Math.round(G.cost * Math.abs(cv) / 100);
+        stockExplain = `⛏️ <em>Расходы шахты: ${fmt(G.cost)} → +${fmt(costImpact)} (${cv>0?'+':''}${cv}%). `
+          + `При EBITDA-марже шахты ~78% такой рост расходов заметен, но критичным не является.</em>`;
+      }
       if(rv !== 0 || (rule.type && G.biz === 'mine')) {
         const bizLabel = G.biz === 'mine' ? 'Полюс Золото' : 'Henderson';
         if(G.biz === 'mine' && rule.type === 'goldPrice') {
@@ -2079,16 +2242,16 @@ function sendEv(mode){
         + (stockExplain ? '<br><span style="font-size:10px;color:var(--muted);margin-top:4px;display:block">'+stockExplain+'</span>' : '');
 
       // IPO прогресс для не-шахты
-      const ipoReady2 = G.rev >= G.revStart * 3;
+      const ipoReady2 = G.rev >= G.revStart * 2;
       const ipoHintEl2 = document.getElementById('ipo-hint');
       if(ipoHintEl2) {
         ipoHintEl2.style.display = 'block';
         if(ipoReady2) {
-          ipoHintEl2.innerHTML = '🚀 <strong>Выручка ×3 от старта!</strong> После собрания акционеров — выход на IPO.';
+          ipoHintEl2.innerHTML = '🚀 <strong>Выручка ×2 от старта!</strong> После собрания акционеров — выход на IPO.';
           ipoHintEl2.style.color = 'var(--grn)';
         } else {
           const x2 = (G.rev / G.revStart).toFixed(1);
-          ipoHintEl2.innerHTML = '📈 Рост выручки: <strong>×'+x2+'</strong> (нужно ×3 для IPO). Цель: '+fmt(G.revStart*3);
+          ipoHintEl2.innerHTML = '📈 Рост выручки: <strong>×'+x2+'</strong> (нужно ×2 для IPO). Цель: '+fmt(G.revStart*2);
           ipoHintEl2.style.color = 'var(--muted)';
         }
       }
@@ -2165,10 +2328,18 @@ function sendEv(mode){
     G.stCnt++;
     if(G.bondsIssued && G.bondPeriodsPaid < 10 && G.stCnt % 2 === 0) {
       G.bondPeriodsPaid = Math.min(10, G.bondPeriodsPaid + 1);
-      // Купон фиксируем в накопительном CF (cash не трогаем — купон
-      // уже учтён как expense в P&L и как отток через updateStatements
-      // во время операционной фазы)
+      G.bondPrice = bondMarketPrice(G.cbr);
+      G.bondPriceH.push(G.bondPrice);
       G.cumCpnPaid += G.bondCouponPerPeriod;
+
+      // Период 10 — ПОГАШЕНИЕ
+      if(G.bondPeriodsPaid === 10) {
+        const repay    = G.bondDebt;
+        G.cash        -= repay;
+        G.cumAmortPaid += repay;
+        G.bondDebt     = 0;
+        G.bondPrice    = G.bondNominal;
+      }
       updateBondTracker(null);
     }
 
@@ -2249,15 +2420,19 @@ function showFinal(w){
   const net = ebit - interest;
   const ocf = net + dep;
   const cashShow = Math.max(0, G.cash);
-  const ta_f = cashShow + G.ar + G.inv + G.fa;
+  const ta_f = cashShow + G.ar + G.inv + G.fa;  // AR/INV/FA из текущего состояния
   const tp_f = G.ap + (G.n*G.wpp + G.re) + (G.bondsIssued ? G.bondDebt : 0);
 
   sv('f-pl-rev', fmt(G.rev)); sv('f-pl-cost','−'+fmt(G.cost));
   sv('f-pl-ebit', fmt(ebit)); document.getElementById('f-pl-ebit').style.color=ebit>=0?'var(--grn)':'var(--red)';
   sv('f-pl-int',  interest>0?'−'+fmt(interest):'—');
   const fn=document.getElementById('f-pl-net'); fn.textContent=fmt(net); fn.style.color=net>=0?'var(--grn)':'var(--red)';
-  sv('f-bs-cash', fmt(cashShow)); sv('f-bs-fa', fmt(G.fa));
+  sv('f-bs-cash', fmt(cashShow));
+  sv('f-bs-ar',   fmt(G.ar));
+  sv('f-bs-inv',  fmt(G.inv));
+  sv('f-bs-fa',   fmt(G.fa));
   sv('f-bs-ta',   fmt(ta_f));
+  sv('f-bs-ap',   fmt(G.ap));
   sv('f-bs-uc',   fmt(G.n*G.wpp));
   const re2=document.getElementById('f-bs-re'); re2.textContent=fmt(G.re); re2.style.color=G.re>=0?'var(--grn)':'var(--red)';
   sv('f-bs-debt', G.bondsIssued?fmt(G.bondDebt):'0 ₽');
